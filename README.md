@@ -22,6 +22,14 @@ The project consists of three main components:
 ## Tools & Technologies
 
 - Arduino (hardware sensors and microcontrollers)
-- Python (backend data processing)
 - RF22 cards (wireless communication)
-- Web technologies (frontend visualization)
+
+**Backend:**
+- Python
+- Flask
+
+**Frontend visualization:**
+- Vite
+- TypeScript
+- React
+- Tailwind CSS
