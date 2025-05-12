@@ -19,7 +19,7 @@ struct MyData {
 MyData data;
 
 //We should calculate offsets!
-int offset=0;
+int offset=20050;
 
 void setup() {
   Serial.begin(9600);
@@ -43,24 +43,14 @@ void loop() {
   mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
   data.Z = map(az, -17000, 17000, 0, 255);  // Z axis data
   
-  delay(100);
-  
-  Serial.print("Axis Z:");
-  Serial.println(az-20000);
-  Serial.print(F("Temperature  = "));
-  Serial.print(bmp.readTemperature());
-  Serial.println(" *C");
-  
-  Serial.print(F("Pressure = "));
+  delay(10);
+  Serial.print(bmp.readTemperature()); // in *C degrees
+  Serial.print(":");
+  //Serial.print(F("Pressure = "));
   Serial.print(bmp.readPressure()/100);  //displaying the Pressure in hPa, you can change the unit
-  Serial.println("  hPa");
-  
-  Serial.print(F("Approx altitude = "));
-  Serial.print(bmp.readAltitude(1019.66));  //The "1019.66" is the pressure(hPa) at sea level in day in your region
-  Serial.println("  m");                    //If you don't know it, modify it until you get your current  altitude
-  
+  Serial.print(":");
+  //Serial.print("Axis Z:");
+  Serial.print(az-offset);
   Serial.println();
-  //delay(900);
-  
-  
+  //delay(900); 
 }
