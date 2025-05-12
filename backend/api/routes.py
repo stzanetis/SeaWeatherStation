@@ -1,3 +1,4 @@
+import os
 from flask import Blueprint, jsonify
 from flask import current_app 
 from analysis.frequency import wave_metrics
@@ -19,7 +20,7 @@ def get_status():
 
 @main_bp.route('/info')
 def get_info():
-    handler = current_app.SerialHandler()
+    handler = current_app.serial_handler
     data = handler.get_latest_data()
     return jsonify({
         'temperature': data.get('temp'),
@@ -28,27 +29,28 @@ def get_info():
 
 @main_bp.route('/waves')
 def get_waves():
-    handler = current_app.SerialHandler()
-    data = handler.get_latest_data()
-    z_values = [data.get('accel_z', 0)]
+    handler = current_app.serial_handler
+    accel_data = handler.get_accel_history()
+    metrics = wave_metrics(accel_data)
     # TODO: Implement wave prediction
-    metrics = wave_metrics(z_values)
     return jsonify(metrics)
 
 @main_bp.route('/weather')
 def get_weather():
-    api_key = os.getenv("OWM_API_KEY")
-    lat     = os.getenv("LATITUDE")
-    lon     = os.getenv("LONGITUDE")
-
-    url = (
-        "https://api.openweathermap.org/data/2.5/weather"
-        f"?lat={lat}&lon={lon}"
-        f"&appid={api_key}&units=metric"
-    )
-    resp = requests.get(url).json()
-    return jsonify({
-        'wind_speed':     resp['wind']['speed'],
-        'wind_direction': resp['wind']['deg'],
-        'condition':      resp['weather'][0]['main']
-    })
+    try:
+        api_key = os.getenv("OWM_API_KEY")
+        lat = os.getenv("LATITUDE")
+        lon = os.getenv("LONGITUDE")
+        
+        url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"
+        resp = requests.get(url, timeout=5)
+        resp.raise_for_status()
+        
+        weather_data = resp.json()
+        return jsonify({
+            'wind_speed': weather_data['wind'].get('speed', 0),
+            'wind_direction': weather_data['wind'].get('deg', 0),
+            'condition': weather_data['weather'][0]['main'] if weather_data['weather'] else 'unknown'
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
