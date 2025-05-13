@@ -1,7 +1,8 @@
 import os
 from flask import Blueprint, jsonify
 from flask import current_app 
-from analysis.frequency import wave_metrics
+from analysis.wave_analysis import wave_metrics
+from analysis.shore_impact import inundation
 from arduino.serial_handler import SerialHandler
 from dotenv import load_dotenv
 import requests
@@ -32,8 +33,8 @@ def get_waves():
     handler = current_app.serial_handler
     accel_data = handler.get_accel_history()
     metrics = wave_metrics(accel_data)
-    # TODO: Implement wave prediction
-    return jsonify(metrics)
+    shore_runup = inundation(metrics)
+    return jsonify(shore_runup)
 
 @main_bp.route('/weather')
 def get_weather():

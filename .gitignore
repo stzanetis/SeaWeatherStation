@@ -1,7 +1,7 @@
-# Python cache files
 __pycache__/
-
+TODO.txt
 .env
+
 # Logs
 logs
 *.log

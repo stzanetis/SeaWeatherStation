@@ -36,7 +36,7 @@ class SerialHandler:
             except (serial.SerialException, UnicodeDecodeError) as e:
                 print(f"Serial read error: {str(e)}")
                 time.sleep(1)
-            time.sleep(0.001)  # Match 10ms sampling rate
+            time.sleep(0.001)  # match 10ms sampling rate
 
     def get_latest_data(self):
         with self.lock:
