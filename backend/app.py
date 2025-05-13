@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from arduino.serial_handler import SerialHandler
+from sensors.serial_handler import SerialHandler
 
 def create_app():
     app = Flask(__name__)

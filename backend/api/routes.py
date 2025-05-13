@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify
 from flask import current_app 
 from analysis.wave_analysis import wave_metrics
 from analysis.shore_impact import inundation
-from arduino.serial_handler import SerialHandler
+from sensors.serial_handler import SerialHandler
 from dotenv import load_dotenv
 import requests
 
