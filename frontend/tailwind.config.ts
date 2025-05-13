@@ -15,6 +15,11 @@ export default {
 			}
 		},
     extend: {
+      fontFamily: {
+        sansation: ['Sansation', 'sans-serif'],
+        manrope: ['Manrope', 'sans-serif'],
+        'lisu-bosa': ['"Lisu Bosa"', 'serif']
+      },
       colors: {
         background: "#2775A7",
         foreground: "#EAF7FF",

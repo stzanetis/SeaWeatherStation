@@ -1,0 +1,39 @@
+import { Thermometer } from 'lucide-react';
+import { getInfo } from '@/services/api';
+import { useEffect, useState } from 'react';
+
+const TempWidget = () => {
+    const [temperature, setTemperature] = useState(null);
+
+    const fetchTemperature = async () => {
+        try {
+            const infoData = await getInfo();
+            setTemperature(infoData.temperature);
+        } catch (error) {
+            console.error('Error fetching temperature data:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchTemperature();
+
+        // Set up an interval to fetch weather data every minute
+        const intervalId = setInterval(fetchTemperature, 60000);
+        
+        // Clean up the interval when component unmounts
+        return () => clearInterval(intervalId);
+    }, []);
+
+    return (
+        <div className="bg-foreground p-3 rounded-[12px] shadow-lg w-44 h-44">
+            <h2 className="text-[16px] text-text font-sansation font-bold">Air Temperature</h2>
+            <div className="mt-4 mb-2">
+                <Thermometer className="text-text" strokeWidth={2} size={50} />
+            </div>
+            <h1 className="text-[32px] text-text-accent font-sansation font-bold">{temperature}</h1>
+            <h3 className="text-[11px] text-text-secondary font-sansation">Celcius</h3>
+        </div>
+    );
+}
+
+export default TempWidget;

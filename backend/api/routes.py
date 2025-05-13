@@ -50,7 +50,8 @@ def get_weather():
         return jsonify({
             'wind_speed': weather_data['wind'].get('speed', 0),
             'wind_direction': weather_data['wind'].get('deg', 0),
-            'condition': weather_data['weather'][0]['main'] if weather_data['weather'] else 'unknown'
+            'condition': weather_data['weather'][0]['main'] if weather_data['weather'] else 'unknown',
+            'description': weather_data['weather'][0]['description'] if weather_data['weather'] else 'unknown'
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
