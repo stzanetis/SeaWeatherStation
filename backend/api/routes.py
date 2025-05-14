@@ -32,9 +32,10 @@ def get_info():
 def get_waves():
     handler = current_app.serial_handler
     accel_data = handler.get_accel_history()
+    
     metrics = wave_metrics(accel_data)
-    shore_runup = inundation(metrics)
-    return jsonify(shore_runup)
+    shore_impact = inundation(metrics, slope=0.05)
+    return jsonify(shore_impact)
 
 @main_bp.route('/weather')
 def get_weather():
