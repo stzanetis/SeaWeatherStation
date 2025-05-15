@@ -61,8 +61,6 @@ void loop() {
     memcpy(incoming, buf, RF22_ROUTER_MAX_MESSAGE_LEN);
     //Serial.print("got request from : ");
     //Serial.println(from, DEC);
-    
-    received_data = atoi((char*)incoming);
-    Serial.println(received_data);
+    Serial.println(incoming);
   }
 }
