@@ -1,29 +1,35 @@
 #include <SPI.h>
 #include <RF22.h>
 #include <RF22Router.h>
+#include "MPU6050.h"    
+#include  <Adafruit_BMP280.h>
 
 #define MY_ADDRESS 1
 #define DESTINATION_ADDRESS 2
 #define BAUD_RATE 9600
 #define FREQUENCY 440.0
 
-void print_measurments(int initial_time, int final_time) {
-  float throughput=(float)counter*number_of_bytes*1000.0/(final_time-initial_time);
-
-  Serial.print("Throughput=");
-  Serial.print(throughput);
-  Serial.println("Bytes/s");
-
-  Serial.print("Initial time= ");  
-  Serial.print(initial_time);
-
-  Serial.print("Final time= ");  
-  Serial.println(final_time);
-  Serial.println("");
-}
-
 RF22Router rf22(MY_ADDRESS);  // Initiate the class to talk to my radio with MY_ADDRESS
-const int sensorPin = A0;
+
+Adafruit_BMP280 bmp; // I2C Interface
+
+MPU6050 mpu;
+int16_t ax, ay, az;
+int16_t gx, gy, gz;
+
+struct MyData {
+  byte X;
+  byte Y;
+  byte Z;
+  byte GX;
+  byte GY;
+  byte GZ;
+};
+
+MyData data;
+
+//We should calculate offsets!
+int offset=20050;
 
 void setup() {
   Serial.begin(BAUD_RATE);
@@ -43,31 +49,57 @@ void setup() {
     pinMode(pinNumber, OUTPUT);
     digitalWrite(pinNumber, LOW);
   }
-
-  delay(1000);
+  
+  mpu.initialize();
+  delay(100);
+  
+  //Serial.println(F("BMP280 test"));
+  
+  if  (!bmp.begin()) {
+  Serial.println(F("ERROR"));
+  //while (1);
+  }
+  /* Default settings from datasheet.  */
+  bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
+                  Adafruit_BMP280::SAMPLING_X2,     /* Temp. oversampling */
+                  Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
+                  Adafruit_BMP280::FILTER_X16,      /* Filtering. */
+                  Adafruit_BMP280::STANDBY_MS_500);  /* Standby time. */
 }
 
 void loop() {
   int counter = 0;
   int initial_time = millis();
+  char tempStr[10];
+  char presStr[10];
+  char accStr[10];
 
-  // Mock measurements
-  int sensorVal = analogRead(sensorPin);
-  Serial.print("My measurement is: ");
-  Serial.println(sensorVal);
+  // accelerometer measurements
+  mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+  data.Z = map(az, -17000, 17000, 0, 255);  // Z axis data
+  delay(10);
+  float temp = bmp.readTemperature();
+  float pres = bmp.readPressure()/100;
+  int acc = az-20050;
+  dtostrf(temp, 6, 2, tempStr);   // width=6, precision=2
+  dtostrf(pres, 7, 2, presStr);   // width=7, precision=2
+  itoa(acc, accStr, 10);          // convert int to string
+  
 
   // Transform measured value into a uint8_t variable
   char data_read[RF22_ROUTER_MAX_MESSAGE_LEN];
   uint8_t data_send[RF22_ROUTER_MAX_MESSAGE_LEN];
   memset(data_read, '\0', RF22_ROUTER_MAX_MESSAGE_LEN);
   memset(data_send, '\0', RF22_ROUTER_MAX_MESSAGE_LEN);
-  sprintf(data_read, "%d", sensorVal);
+  //sprintf(data_read, "%.2f:%.2f:%d", temp, pres, acc); //<------
+  snprintf(data_read, RF22_ROUTER_MAX_MESSAGE_LEN, "%s:%s:%s", tempStr, presStr, accStr);
+  Serial.println(data_read);
   data_read[RF22_ROUTER_MAX_MESSAGE_LEN - 1] = '\0';
   memcpy(data_send, data_read, RF22_ROUTER_MAX_MESSAGE_LEN);
 
   int number_of_bytes = sizeof(data_send);
-  Serial.print("Number of Bytes= ");
-  Serial.println(number_of_bytes);
+  //Serial.print("Number of Bytes= ");
+  //Serial.println(number_of_bytes);
 
   // Sending variable data_send to DESTINATION_ADDRESS
   if (rf22.sendtoWait(data_send, sizeof(data_send), DESTINATION_ADDRESS) != RF22_ROUTER_ERROR_NONE) {
@@ -76,14 +108,26 @@ void loop() {
     counter=counter+1;
     uint8_t rssi = rf22.rssiRead();
     float Pr=((float)rssi-230.0)/1.8;
-    Serial.print("RSSI= ");
+    /*Serial.print("RSSI= ");
     Serial.print(Pr);
     Serial.println(" dBm");
-
-    Serial.println("Message sent successfully");
+    Serial.println("Message sent successfully");*/
   }
 
   int final_time=millis();
-  print_measurements(initial_time, final_time)
-  delay(2000);
+  //print measurments
+  /*float throughput=(float)counter*number_of_bytes*1000.0/(final_time-initial_time);
+
+  Serial.print("Throughput=");
+  Serial.print(throughput);
+  Serial.println("Bytes/s");
+
+  Serial.print("Initial time= ");  
+  Serial.print(initial_time);
+
+  Serial.print("Final time= ");  
+  Serial.println(final_time);
+  Serial.println("");
+  delay(2000);*/
 }
+
