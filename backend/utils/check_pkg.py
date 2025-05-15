@@ -1,7 +1,7 @@
 import pkg_resources
 
 requirements = {
-    "flask": "3.1.1",
+    "flask": "3.1.0",
     "flask-cors": "5.0.1",
     "pyserial": "3.5",
     "numpy": "2.2.5",

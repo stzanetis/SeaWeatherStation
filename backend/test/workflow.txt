@@ -1,4 +1,4 @@
-Serial Port → [SerialManager] → Circular Buffer → [Wave Analysis] 
+Serial Port → [SerialManager] → Circular Buffer → [Wave Analysis] -> Web Display
        ↑                               ↑
        |                               |
    [DataParser]                [FFT Test Script]

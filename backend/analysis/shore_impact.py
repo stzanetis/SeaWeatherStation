@@ -37,6 +37,13 @@ def inundation(metrics, slope=0.05):
     except KeyError:
         raise ValueError("Missing wave metrics in input data")
     
+    if f == 0:
+        return {
+            'runup': 0.0,
+            'zone': "CALM",
+            'inundation': 0.0
+        }
+
     T = period(f)
     L0 = wavelength(T)
     beta = slope
@@ -52,6 +59,6 @@ def inundation(metrics, slope=0.05):
 # source: https://www.fema.gov/sites/default/files/documents/fema_coastal-floodplain-mapping_112022.pdf
 
 # example
-metrics = {'frequency': 0.2, 'height': 0.3}
-result = inundation(metrics, slope=0.05)
-print(f"""Runup: {result['runup']:.2f}m\nZone: {result['zone']}\nInundation: {result['inundation']:.2f}m""")
+# metrics = {'frequency': 0.2, 'height': 0.3}
+# result = inundation(metrics, slope=0.05)
+# print(f"""Runup: {result['runup']:.2f}m\nZone: {result['zone']}\nInundation: {result['inundation']:.2f}m""")
