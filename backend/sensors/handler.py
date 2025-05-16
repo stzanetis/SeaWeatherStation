@@ -27,17 +27,18 @@ class SimulatedHandler:
         def simulation_loop():
 
             wave_freq = 0.5
-            wave_amp = 8000
-            noise_level = 0.2
+            wave_amp = 1000
+            noise_level = 0.1
             temp_base = 20.0
             pressure_base = 101325.0
             
             while self.running:
 
-                if np.random.rand() < 0.01:  # 1% chance per iteration to change
-                    wave_freq   = np.clip(0.3  + np.random.rand() *0.7,  0.2,  1.0)
-                    wave_amp    = np.clip(5000 + np.random.randn()*2000, 3000, 15000)
-                    noise_level = np.clip(0.1  + np.random.rand() *0.4,  0.05, 0.5)
+                if np.random.rand() < 0.003:  # 0.3% chance per iteration to change
+                    # extreme waves (but plausible)
+                    wave_amp    = np.clip(3000 + np.random.randn()*5000, 1000, 20000)
+                    wave_freq   = np.clip(0.1  + np.random.rand() *0.5,  0.08, 0.6)
+                    noise_level = np.clip(0.3  + np.random.rand() *0.7,  0.2, 1.0)
 
                 t = time.time()
                 
