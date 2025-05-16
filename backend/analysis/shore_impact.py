@@ -50,9 +50,10 @@ def inundation(metrics, slope=0.05):
 
     R2, zone = runup(Hs, L0, beta)
     return {
-        'runup': R2,
+        'runup': round(R2, 2),
         'zone': zone,
-        'inundation': R2 / slope
+        'inundation': round(R2/slope, 2)
+
     }
 
 # source: https://data-ww3.ifremer.fr/BIB/Stockdon_etal_CE2006.pdf Stockdon et al. (2006)
