@@ -35,13 +35,16 @@ const PressWidget = () => {
     return (
         <div className="bg-foreground p-3 rounded-[12px] shadow-lg w-44 h-36">
             <h2 className="text-[16px] text-text font-sansation font-bold">Pressure</h2>
-            <div className="grid"></div>
-            <div className="flex flex-col justify-center h-[calc(100%-50px)] mt-3.5">
-                <h1 className="text-[32px] text-text-accent font-sansation font-bold">{pressure}</h1>
-                <h3 className="text-[11px] text-text font-bold font-sansation">hPa</h3>
-                <h3 className="text-[11px] text-text-secondary font-sansation mt-2">{pressureDescription}</h3>
-            </div>
-            
+            {pressure !== null && (
+                <div>
+                    <div className="grid"></div>
+                    <div className="flex flex-col justify-center h-[calc(100%-50px)] mt-3.5">
+                        <h1 className="text-[32px] text-text-accent font-sansation font-bold">{pressure}</h1>
+                        <h3 className="text-[11px] text-text font-bold font-sansation">hPa</h3>
+                        <h3 className="text-[11px] text-text-secondary font-sansation mt-2">{pressureDescription}</h3>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

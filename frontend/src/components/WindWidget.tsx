@@ -65,17 +65,21 @@ const WindWidget = () => {
     return (
         <div className="bg-foreground p-3 rounded-[12px] shadow-lg w-44 h-36">
             <h2 className="text-[16px] text-text font-sansation font-bold">Wind</h2>
-            <div className="grid grid-cols-2 gap-2 mt-3">
-                <div className="flex flex-col justify-center h-[calc(100%-50px)] mt-3.5">
-                    <h1 className="text-[32px] text-text-accent font-sansation font-bold">{wind}</h1>
-                    <h3 className="text-[11px] text-text font-bold font-sansation">km/h</h3>
-                    <h3 className="text-[11px] text-text-secondary font-sansation mt-2">{windDescription}</h3>
+            {wind !== null && (
+                <div>
+                    <div className="grid grid-cols-2 gap-2 mt-3">
+                        <div className="flex flex-col justify-center h-[calc(100%-50px)] mt-3.5">
+                            <h1 className="text-[32px] text-text-accent font-sansation font-bold">{wind}</h1>
+                            <h3 className="text-[11px] text-text font-bold font-sansation">km/h</h3>
+                            <h3 className="text-[11px] text-text-secondary font-sansation mt-2">{windDescription}</h3>
+                        </div>
+                        <div className="flex flex-col items-center justify-center mt-[-48px] mr-4">
+                            <h3 className="text-text text-[12px] font-bold font-sansation">N</h3>
+                            {windIcon}
+                        </div>
+                    </div>
                 </div>
-                <div className="flex flex-col items-center justify-center mt-[-48px] mr-4">
-                    <h3 className="text-text text-[12px] font-bold font-sansation">N</h3>
-                    {windIcon}
-                </div>
-            </div>
+            )}
         </div>
     );
 }
