@@ -1,4 +1,4 @@
-export const API_BASE_URL = 'http://192.168.1.3:5000/';
+export const API_BASE_URL = 'http://149.107.52.8:5000/';
 
 // Helper function for making API requests
 async function fetchAPI(endpoint: string, options: RequestInit = {}) {
