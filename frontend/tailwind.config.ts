@@ -18,7 +18,8 @@ export default {
       fontFamily: {
         sansation: ['Sansation', 'sans-serif'],
         manrope: ['Manrope', 'sans-serif'],
-        'lisu-bosa': ['"Lisu Bosa"', 'serif']
+        'lisu-bosa': ['"Lisu Bosa"', 'serif'],
+        'bungee': ['"Bungee Shade"', 'cursive'],
       },
       colors: {
         background: "#2775A7",

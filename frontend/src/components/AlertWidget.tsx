@@ -67,7 +67,7 @@ const AlertWidget = ({onClose, description, title, severity}: AlertWidgetProps) 
             animate={{ opacity: isVisible ? 1 : 0, height: isVisible ? 'auto' : 0 }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className={`${colors.background} ${colors.border} ${colors.text} border-2 p-3 rounded-[12px] shadow-lg w-full`}
+            className={`${colors.background} ${colors.border} ${colors.text} transition-transform active:scale-95 border-2 p-3 rounded-[12px] shadow-lg w-full`}
         >
             <div className="flex justify-between items-center">
                 <h2 className="text-[18px] font-sansation font-bold flex items-center">

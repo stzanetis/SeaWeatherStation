@@ -30,7 +30,7 @@ const StatusWidget = () => {
     }, []);
 
     return (
-        <div className="bg-foreground p-3 rounded-[12px] shadow-lg w-full h-40">
+        <div className="transition-transform active:scale-95 bg-foreground/60 border-l border-t border-white/60 backdrop-blur-sm p-3 rounded-[12px] shadow-lg w-full h-40">
             <h2 className="text-[16px] text-text font-sansation font-bold">Drone Status</h2>
             {battery !== null && signal !== null && (
                 <div className="mt-4 space-y-4">
@@ -39,8 +39,15 @@ const StatusWidget = () => {
                             <span className="text-text-secondary font-semibold font-sansation">Battery</span>
                             <span className="text-text-accent font-semibold font-sansation">{battery}%</span>
                         </div>
-                        <div className="w-full bg-gray-300 rounded-full h-2">
-                            <div className={`h-2 rounded-full ${battery < 25 ? 'bg-warning_high-border' : 'bg-text'}`} style={{ width: `${battery}%` }}></div>
+                        <div className="w-full bg-white/60 rounded-full h-2">
+                            <div 
+                                className="h-2 rounded-full" 
+                                style={{ 
+                                    width: `${battery}%`,
+                                    background: battery < 25 ? 'linear-gradient(90deg, #9c1717, #cf2727)' :
+                                                battery < 50 ? 'linear-gradient(90deg, #ad7400, #d68f00)' :
+                                                'linear-gradient(90deg, #00174a, #002b88)'}}
+                            ></div>
                         </div>
                     </div>
                     <div>
@@ -48,8 +55,15 @@ const StatusWidget = () => {
                             <span className="text-text-secondary font-semibold font-sansation">Signal Strength</span>
                             <span className="text-text-accent font-semibold font-sansation">{signal}%</span>
                         </div>
-                        <div className="w-full bg-gray-300 rounded-full h-2">
-                            <div className={`h-2 rounded-full ${signal < 50 ? 'bg-warning_high-border' : 'bg-text'}`} style={{ width: `${signal}%` }}></div>
+                        <div className="w-full bg-white/60 rounded-full h-2">
+                            <div 
+                                className={"h-2 rounded-full"} 
+                                style={{ 
+                                    width: `${signal}%` ,
+                                    background: signal < 25 ? 'linear-gradient(90deg, #9c1717, #cf2727)' :
+                                                signal < 50 ? 'linear-gradient(90deg, #ad7400, #d68f00)' :
+                                                'linear-gradient(90deg, #00174a, #002b88'}}
+                            ></div>
                         </div>
                     </div>
                 </div>

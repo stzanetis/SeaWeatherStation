@@ -39,10 +39,10 @@ const WeatherWidget = () => {
     }, []);
 
     return (
-        <div className="bg-foreground p-3 rounded-[12px] shadow-lg w-44 h-44">
+        <div className="bg-foreground/60 backdrop-blur-sm p-3 rounded-[12px] shadow-lg w-full h-44 border-l border-t border-white/60 transition-transform active:scale-95">
             <h2 className="text-[16px] text-text font-sansation font-bold">Current Condition</h2>
             <div className="mt-4 mb-2">
-                {weatherIcon}
+            {weatherIcon}
             </div>
             <h1 className="text-[32px] text-text-accent font-sansation font-bold">{weather}</h1>
             <h3 className="text-[11px] text-text-secondary font-sansation">{weatherDescription}</h3>

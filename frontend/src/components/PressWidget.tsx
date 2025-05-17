@@ -33,7 +33,7 @@ const PressWidget = () => {
     }, []);
 
     return (
-        <div className="bg-foreground p-3 rounded-[12px] shadow-lg w-44 h-36">
+        <div className="transition-transform active:scale-95 bg-foreground/60 border-l border-t border-white/60 backdrop-blur-sm p-3 rounded-[12px] shadow-lg w-full h-36">
             <h2 className="text-[16px] text-text font-sansation font-bold">Pressure</h2>
             {pressure !== null && (
                 <div>

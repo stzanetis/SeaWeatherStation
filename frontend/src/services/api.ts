@@ -44,3 +44,10 @@ export const getWeather = async () => {
   const weatherData = await fetchAPI('weather');
   return weatherData;
 };
+
+export const getWave = async () => {
+  const waveData = await fetchAPI('waves', {
+    method: 'GET'
+  });
+  return waveData;
+};
