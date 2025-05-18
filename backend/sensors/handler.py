@@ -86,7 +86,6 @@ class SimulatedHandler:
 """Handles actual Arduino communication for DEPLOY mode"""
 class RealHandler:
     def __init__(self):
-
         self.ser = None
         self.latest_data = {}
         self.accel_buffer = []
@@ -94,77 +93,103 @@ class RealHandler:
         self.lock = Lock()
         self.running = True
         self.max_retries = 3
-        self.retry_count = 0
-        
+        self._read_thread = None
+
         if not self._connect_retry():
             print("\nCRITICAL HARDWARE ERROR")
             print(f"Failed to connect to {SERIAL_PORT}")
-            print("Verify Arduino is connected and port is correct")
             raise RuntimeError("Max connection attempts exceeded")
 
     def _connect_retry(self):
-
         from time import sleep
-        print(f"Attempting connection to {SERIAL_PORT}")
+        attempts = 0
         
-        while self.retry_count < self.max_retries:
-            print(f"➢ Attempt {self.retry_count+1}/{self.max_retries}")
+        while attempts < self.max_retries:
+            print(f"➢ Attempt {attempts+1}/{self.max_retries}")
             if self._connect():
                 return True
-            self.retry_count += 1
-            if self.retry_count < self.max_retries:
-                sleep_time = 2 ** self.retry_count
-                print(f"Retrying in {sleep_time}s...")
-                sleep(sleep_time)
+            attempts += 1
+            backoff = 2**attempts
+            print(f"Retrying in {backoff}s...")
+            sleep(backoff)
         return False
 
     def _connect(self):
         try:
+            # Open serial port
             self.ser = serial.Serial(SERIAL_PORT, 9600, timeout=1)
-            self.ser.reset_input_buffer()
-            print(f"Connected to {SERIAL_PORT}")
-            Thread(target=self._read_serial, daemon=True).start()
-            return True
-        except serial.SerialException as e:
-            print(f"Connection failed: {str(e)}")
-            return False
-    
-    def _read_serial(self):
+            print(f"Connected to {SERIAL_PORT}; waiting 2s for Arduino reboot…")
+            time.sleep(2)
 
-        while self.running and self.ser:
+            # flush any garbled startup bytes
+            self.ser.reset_input_buffer()
+            # discard first line (likely partial)
+            _ = self.ser.readline()
+
+            # reader thread
+            if not self._read_thread or not self._read_thread.is_alive():
+                self._read_thread = Thread(target=self._read_serial, daemon=True)
+                self._read_thread.start()
+
+            print("Serial read thread started.")
+            return True
+
+        except serial.SerialException as e:
+            print(f"Connection failed: {e}")
+            return False
+
+    def _read_serial(self):
+        buffer = ""
+        while self.running:
             try:
-                if self.ser.in_waiting > 0:
-                    raw_data = self.ser.readline()
-                    line = raw_data.decode('utf-8', errors='ignore').strip()
-                    if line:
-                        data = parse(line)
+                if not self.ser or not self.ser.is_open:
+                    if not self._connect_retry():
+                        print("Could not reconnect; stopping reader.")
+                        break
+                    continue
+
+                # Read all available bytes
+                n = self.ser.in_waiting
+                if n:
+                    chunk = self.ser.read(n).decode('utf-8', errors='ignore')
+                    buffer += chunk
+
+                    # Process complete lines
+                    while '\n' in buffer:
+                        line, buffer = buffer.split('\n', 1)
+                        clean = line.strip()
+                        data = parse(clean)
                         if data:
                             with self.lock:
-                                self.latest_data = data
+                                self.latest_data.update(data)
                                 if 'accel_z' in data:
                                     self.accel_buffer.append(data['accel_z'])
                                     if len(self.accel_buffer) > self.buffer_size:
                                         self.accel_buffer.pop(0)
+                        else:
+                            # optional: log malformed line
+                            # print(f"Bad line skipped: {clean}")
+                            pass
+
                 time.sleep(0.001)
+
             except serial.SerialException as e:
-                print(f"Serial error: {str(e)}")
+                print(f"Serial error: {e}; disconnecting…")
                 self._disconnect()
-                
-                if self.retry_count >= self.max_retries:
-                    print(f"Maximum reconnection attempts ({self.max_retries}) reached. Giving up.")
-                    self.running = False
-                    break
-                    
-                print(f"Reconnection attempt {self.retry_count+1}/{self.max_retries}")
-                if not self._connect():
-                    time.sleep(1)  # wait before next attempt
             except Exception as e:
-                print(f"Unexpected error: {str(e)}")
+                # Catch any unexpected parsing/lock errors
+                print(f"Read thread exception: {e}")
 
     def _disconnect(self):
-        if self.ser and self.ser.is_open:
-            self.ser.close()
-        self.ser = None
+        if self.ser:
+            try:
+                if self.ser.is_open:
+                    self.ser.close()
+                    print("Serial port closed.")
+            except Exception as e:
+                print(f"Error on close: {e}")
+            finally:
+                self.ser = None
 
     def get_latest_data(self):
         with self.lock:
@@ -172,11 +197,13 @@ class RealHandler:
 
     def get_accel_history(self):
         with self.lock:
-            return self.accel_buffer.copy()
+            return list(self.accel_buffer)
 
     def close(self):
         self.running = False
         self._disconnect()
+        if self._read_thread:
+            self._read_thread.join(timeout=1)
 
 """Unified interface for sensor data access"""
 class SerialHandler:

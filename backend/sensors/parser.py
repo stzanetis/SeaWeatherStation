@@ -3,7 +3,7 @@ def parse(line):
         # clean non-printable characters
         clean = ''.join([c if c.isprintable() else '' for c in line]).strip()
         # skip lines with alphabetic characters (debug messages)
-        if any(c.isalpha() for c in clean):
+        if any(c.isalpha() and c not in {'E', '-', '+'} for c in clean):
             return None
         
         parts = clean.split(':')
