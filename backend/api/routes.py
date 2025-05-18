@@ -18,7 +18,7 @@ def get_status():
         'online': True,
         'battery': 85,
         'lat': round(data.get('lat', 0)),
-        'longitude': round(data.get('lon', 0)),
+        'lon': round(data.get('lon', 0)),
         'signal_strength': round(data.get('signal', -999))
     })
 
