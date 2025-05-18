@@ -4,19 +4,21 @@ import time
 import numpy as np
 from threading import Thread, Lock
 from .parser import parse
-from config import SERIAL_PORT, MODE
+from config import SERIAL_PORT, MODE, LATITUDE, LONGITUDE
 
 """Handles sensor data simulation for DEMO mode"""
 class SimulatedHandler:
     def __init__(self):
         self.latest_data = {
-            'signal': -70.0,  # dBm
-            'temp': 20.0,           # C
-            'pressure': 1013.25,    # hPa
+            'lat': float(LATITUDE),
+            'lon': float(LONGITUDE),
+            'signal': -70.0, # dBm
+            'temp': 20.0, # C
+            'pressure': 1013.25, # hPa
             'accel_z': 0
         }
         self.accel_buffer = []
-        self.buffer_size = 500  # 5 seconds of data at 100Hz
+        self.buffer_size = 500 # 5 seconds of data at 100Hz
         self.lock = Lock()
         self.running = True
         self._simulation_thread = None
@@ -29,7 +31,9 @@ class SimulatedHandler:
             noise_level = 0.1
             temp_base = 20.0
             pressure_base = 101325.0
-            sig_base = -70.0  # base dBm
+            sig_base = -70.0 # base dBm
+            lat = float(LATITUDE)  # static for demo
+            lon = float(LONGITUDE) # static for demo
             
             while self.running:
                 if np.random.rand() < 0.003:
@@ -39,15 +43,15 @@ class SimulatedHandler:
 
                 t = time.time()
                 
-                # Simulate dBm fluctuations (-80dBm to -50dBm range)
+                # simulate dBm fluctuations (-80dBm to -50dBm range)
                 signal = sig_base + 10*np.sin(t/500)
                 signal = np.clip(signal, -80, -50)
                 
-                # Simulate environmental sensors (15C to 25C and 1003.25 to 1023.25)
+                # simulate environmental sensors (15C to 25C and 1003.25 to 1023.25)
                 temp = temp_base + 5*np.sin(t/300)
                 pressure = pressure_base + 1000*np.sin(t/600)
                 
-                # Generate acceleration data (-40000 to 40000)
+                # simulate acceleration data (-40000 to 40000)
                 accel_z = int(
                     wave_amp*np.sin(2*np.pi*wave_freq*t) +
                     noise_level*wave_amp*np.random.randn()
@@ -55,6 +59,8 @@ class SimulatedHandler:
 
                 with self.lock:
                     self.latest_data = {
+                        'lat': lat,
+                        'lon': lon,
                         'signal':   round(signal, 1),
                         'temp':     round(temp, 2),
                         'pressure': round(pressure/100, 2),

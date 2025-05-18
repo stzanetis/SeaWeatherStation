@@ -16,8 +16,10 @@ def get_status():
     data = handler.get_latest_data()
     return jsonify({
         'online': True,
-        'battery': 85, # %
-        'signal_strength': round(data.get('signal', -999)),  # dBm
+        'battery': 85,
+        'lat': round(data.get('lat', 0)),
+        'longitude': round(data.get('lon', 0)),
+        'signal_strength': round(data.get('signal', -999))
     })
 
 @main_bp.route('/info')
@@ -41,10 +43,14 @@ def get_waves():
 @main_bp.route('/weather')
 def get_weather():
     try:
-        api_key = os.getenv("OWM_API_KEY")
-        lat = os.getenv("LATITUDE")
-        lon = os.getenv("LONGITUDE")
+        handler = current_app.serial_handler
+        data = handler.get_latest_data()
+        lat = data.get('lat')
+        lon = data.get('lon')
+        if lat is None or lon is None:
+            raise ValueError("GPS coordinates not available in sensor data")
         
+        api_key = os.getenv("OWM_API_KEY")
         url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"
         resp = requests.get(url, timeout=5)
         resp.raise_for_status()
