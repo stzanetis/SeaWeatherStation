@@ -9,10 +9,10 @@ from config import SERIAL_PORT, MODE
 """Handles sensor data simulation for DEMO mode"""
 class SimulatedHandler:
     def __init__(self):
-
         self.latest_data = {
-            'temp': 20.0,
-            'pressure': 1013.25,
+            'signal': -70.0,  # dBm
+            'temp': 20.0,           # C
+            'pressure': 1013.25,    # hPa
             'accel_z': 0
         }
         self.accel_buffer = []
@@ -23,48 +23,47 @@ class SimulatedHandler:
         self._start_simulation()
 
     def _start_simulation(self):
-
         def simulation_loop():
-
             wave_freq = 0.5
             wave_amp = 1000
             noise_level = 0.1
             temp_base = 20.0
             pressure_base = 101325.0
+            sig_base = -70.0  # base dBm
             
             while self.running:
-
-                if np.random.rand() < 0.003:  # 0.3% chance per iteration to change
-                    # extreme waves (but plausible)
-                    wave_amp    = np.clip(3000 + np.random.randn()*5000, 1000, 20000)
-                    wave_freq   = np.clip(0.1  + np.random.rand() *0.5,  0.08, 0.6)
-                    noise_level = np.clip(0.3  + np.random.rand() *0.7,  0.2, 1.0)
+                if np.random.rand() < 0.003:
+                    wave_amp = np.clip(3000 + np.random.randn()*5000, 1000, 20000)
+                    wave_freq = np.clip(0.1 + np.random.rand()*0.5, 0.08, 0.6)
+                    noise_level = np.clip(0.3 + np.random.rand()*0.7, 0.2, 1.0)
 
                 t = time.time()
                 
-                # simulate environmental sensors
-                temp = temp_base + 5*np.sin(t/300)  # 5min cycle
-                pressure = pressure_base + 1000*np.sin(t/600)  # 10min cycle
+                # Simulate dBm fluctuations (-80dBm to -50dBm range)
+                signal = sig_base + 10*np.sin(t/500)
+                signal = np.clip(signal, -80, -50)
                 
-                # generate acceleration data
+                # Simulate environmental sensors (15C to 25C and 1003.25 to 1023.25)
+                temp = temp_base + 5*np.sin(t/300)
+                pressure = pressure_base + 1000*np.sin(t/600)
+                
+                # Generate acceleration data (-40000 to 40000)
                 accel_z = int(
                     wave_amp*np.sin(2*np.pi*wave_freq*t) +
                     noise_level*wave_amp*np.random.randn()
                 )
 
                 with self.lock:
-
                     self.latest_data = {
-                        'temp': round(temp, 2),
+                        'signal':   round(signal, 1),
+                        'temp':     round(temp, 2),
                         'pressure': round(pressure/100, 2),
-                        'accel_z': int(accel_z)
+                        'accel_z':  int(accel_z)
                     }
-                    
                     self.accel_buffer.append(accel_z)
                     if len(self.accel_buffer) > self.buffer_size:
                         self.accel_buffer.pop(0)
 
-                # 100Hz sampling rate
                 time.sleep(0.01)
 
         self._simulation_thread = Thread(target=simulation_loop, daemon=True)

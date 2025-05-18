@@ -12,11 +12,12 @@ main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/status')
 def get_status():
-    # TODO: Implement this properly
+    handler = current_app.serial_handler
+    data = handler.get_latest_data()
     return jsonify({
         'online': True,
-        'battery': 85,
-        'signal_strength': 75
+        'battery': 85, # %
+        'signal_strength': round(data.get('signal', -999)),  # dBm
     })
 
 @main_bp.route('/info')
@@ -24,8 +25,8 @@ def get_info():
     handler = current_app.serial_handler
     data = handler.get_latest_data()
     return jsonify({
-        'temperature': data.get('temp'),
-        'pressure':    data.get('pressure')
+        'temperature': data.get('temp'),    # C
+        'pressure':    data.get('pressure') # hPa
     })
 
 @main_bp.route('/waves')
@@ -35,7 +36,7 @@ def get_waves():
     
     metrics = wave_metrics(accel_data)
     shore_impact = inundation(metrics, slope=0.05)
-    return jsonify(shore_impact)
+    return jsonify(shore_impact) # m
 
 @main_bp.route('/weather')
 def get_weather():
