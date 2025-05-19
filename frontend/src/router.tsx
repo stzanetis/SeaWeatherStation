@@ -2,15 +2,17 @@ import { HashRouter, Route, Routes } from 'react-router-dom';
 import App from './App';
 import About from './About';
 
-const router = () => {
-  return (
-    <HashRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/about" element={<About />} />
-      </Routes>
-    </HashRouter>
-  );
-};
+export const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <App />
+  },
+  {
+    path: '/about',
+    element: <About />
+  }
+], {
+  basename: '/SeaWeatherStation'
+});
 
 export default router;

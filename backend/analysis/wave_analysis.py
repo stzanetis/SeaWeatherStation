@@ -1,6 +1,8 @@
 import numpy as np
 
 def wave_metrics(accelerometer_data, sampling_rate=100):
+    if len(accelerometer_data) < 10:
+        return {'frequency': 0.0, 'height': 0.0}
     if not accelerometer_data:
         return {'frequency': 0.0, 'height': 0.0}
     
@@ -39,5 +41,5 @@ def wave_metrics(accelerometer_data, sampling_rate=100):
     
     return {
         'frequency': round(float(dominant_freq), 2),
-        'height': round(float(wave_height), 2)
+        'height':    round(float(wave_height), 2)
     }

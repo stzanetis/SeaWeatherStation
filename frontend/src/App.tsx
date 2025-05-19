@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import background from '@/assets/background.svg';
-import logo from '@/assets/logo.png';
+import logo from '@/assets/logo_index.png';
 import { useEffect, useState } from 'react';
 import { MapPin } from 'lucide-react';
 
@@ -16,18 +16,30 @@ import WaveWidget from '@/components/WaveWidget';
 import AboutWidget from '@/components/AboutWidget';
 import AlertWidget from '@/components/AlertWidget';
 import ShoreWidget from '@/components/ShoreWidget';
+import OriginWidget from '@/components/OriginWidget';
 
 const App = () => {
   const [showConnectionAlert, setShowConnectionAlert] = useState(false);
   const [showTsunamiAlert, setShowTsunamiAlert] = useState(false);
+  const [locationName, setLocationName] = useState('Loading...');
 
   const fetchStatus = async () => {
     try {
       const statusData = await checkStatus();
       if (!statusData) {
         setShowConnectionAlert(true);
+        setLocationName('No Connection');
       } else {
         setShowConnectionAlert(false);
+
+        // Get location name from statusData
+        const data = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${statusData.lat}&lon=${statusData.lon}&format=json`
+        );
+        const locationData = await data.json();
+        const locationName = `${locationData.address.city}, ${locationData.address.country}`;
+        setLocationName(locationName);
+
       }
     } catch (error) {
       console.error('Error fetching status data:', error);
@@ -63,7 +75,7 @@ const App = () => {
     fetchAlert();
 
     // Set up an intervals
-    const intervalId = setInterval(fetchStatus, 30000);
+    const intervalId = setInterval(fetchStatus, 10000);
     const alertIntervalId = setInterval(fetchAlert, 10000);
 
     // Clean up the interval when component unmounts
@@ -83,20 +95,20 @@ const App = () => {
 
   return (
     <main
-      className="min-h-screen p-4 w-screen bg-cover bg-center"
-      style={{backgroundImage: `url(${background})`}}>
+      className="min-h-screen p-4 w-screen bg-cover bg-center lg:w-screen-minus lg:px-[20rem] md:w-screen-minus md:px-[8rem]"
+      style={{backgroundImage: `url(${background})` }}>
       <div className="mx-auto">
 
         {/* Title */}
         <div className="flex items-center font-bold mt-6">
-          <img src={logo} alt="SWELL Logo" className="w-8 h-8 mr-3" />
-          <h1 className="text-text text-[2.4rem] font-bungee pb-2 font-bold">S.W.E.L.L</h1>
+          <img src={logo} alt="Logo" className="mb-2.5 w-8 h-8 mr-4" />
+          <h1 className="text-text text-[2.7rem] font-exile pb-2 font-bold">O.C.E.A.N</h1>
         </div>
         
         {/* Location */}
         <div className="flex items-center font-bold mt-6">
           <MapPin className="text-text-accent text-[4rem]" strokeWidth={2.5} />
-          <h2 className="text-text-accent font-sansation text-[1.1rem] ml-1">Thessaloniki, Greece</h2>
+          <h2 className="text-text-accent font-sansation text-[1.1rem] ml-1">{locationName}</h2>
         </div>
           
         {/* Connection Alert */}
@@ -141,7 +153,7 @@ const App = () => {
           <TempWidget />
         </div>
 
-        <div className="mr-[-2px] mt-4">
+        <div className="mt-4">
           <WaveWidget />
         </div>
 
@@ -150,13 +162,18 @@ const App = () => {
           <WindWidget />
         </div>
 
-        <div className="mr-[-2px] mt-4">
+        <div className="mt-4">
           <StatusWidget />
         </div>
 
         <div className="grid grid-cols-2 gap-4 mt-4">
           <AboutWidget />
           <ShoreWidget />
+        </div>
+
+        {/* Change backend origin */}
+        <div className="mt-4">
+          <OriginWidget />
         </div>
 
         <br />

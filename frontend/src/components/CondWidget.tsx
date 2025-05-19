@@ -31,8 +31,8 @@ const WeatherWidget = () => {
         // Fetch immediately when component mounts
         fetchWeather();
 
-        // Set up an interval to fetch weather data every minute
-        const intervalId = setInterval(fetchWeather, 60000);
+        // Set up an interval to fetch data every 3m
+        const intervalId = setInterval(fetchWeather, 180000);
         
         // Clean up the interval when component unmounts
         return () => clearInterval(intervalId);

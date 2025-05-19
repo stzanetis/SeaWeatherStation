@@ -6,16 +6,14 @@
 
 #define MY_ADDRESS 1
 #define DESTINATION_ADDRESS 2
-#define BAUD_RATE 9600
 #define FREQUENCY 440.0
+#define BAUD_RATE 9600
 
 RF22Router rf22(MY_ADDRESS);  // Initiate the class to talk to my radio with MY_ADDRESS
-
-Adafruit_BMP280 bmp; // I2C Interface
-
-MPU6050 mpu;
-int16_t ax, ay, az;
-int16_t gx, gy, gz;
+Adafruit_BMP280 bmp; //  Initiate the temprature and pressure sensor
+MPU6050 mpu; //  Initiate the accelerometer
+int16_t ax, ay, az; // accelerometer variables
+int16_t gx, gy, gz; // gyroscope variables
 
 struct MyData {
   byte X;
@@ -29,7 +27,13 @@ struct MyData {
 MyData data;
 
 //We should calculate offsets!
-int offset=20050;
+int offset=0; //calculated in backend
+
+float Pr; //Signal Strength
+
+// we send different type of data at different rates to conserve energy
+unsigned long previousMillis = 0;
+const long interval = 1000;
 
 void setup() {
   Serial.begin(BAUD_RATE);
@@ -51,14 +55,14 @@ void setup() {
   }
   
   mpu.initialize();
-  delay(100);
   
   //Serial.println(F("BMP280 test"));
   
   if  (!bmp.begin()) {
   Serial.println(F("ERROR"));
-  //while (1);
+  //  while (1);
   }
+  
   /* Default settings from datasheet.  */
   bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
                   Adafruit_BMP280::SAMPLING_X2,     /* Temp. oversampling */
@@ -70,29 +74,46 @@ void setup() {
 void loop() {
   int counter = 0;
   int initial_time = millis();
+
+  char latStr[10];
+  char lonStr[10];
+  char sigStr[10];
   char tempStr[10];
   char presStr[10];
   char accStr[10];
 
   // accelerometer measurements
   mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
-  data.Z = map(az, -17000, 17000, 0, 255);  // Z axis data
-  delay(10);
+  //data.Z = map(az, -17000, 17000, 0, 255);  // Z axis data
+  
+  float lat = 40.636427;
+  float lon = 22.947077;
+  float sig = Pr;
   float temp = bmp.readTemperature();
   float pres = bmp.readPressure()/100;
-  int acc = az-20050;
-  dtostrf(temp, 6, 2, tempStr);   // width=6, precision=2
+  int acc = az-offset;
+  
+  dtostrf(lat, 9, 6, latStr);   // width=7, precision=2
+  dtostrf(lon, 9, 6, lonStr);   // width=6, precision=2
+  dtostrf(sig, 5, 1, sigStr);   // width=7, precision=2
+  dtostrf(temp, 4, 1, tempStr);   // width=6, precision=2
   dtostrf(pres, 7, 2, presStr);   // width=7, precision=2
   itoa(acc, accStr, 10);          // convert int to string
-  
 
   // Transform measured value into a uint8_t variable
   char data_read[RF22_ROUTER_MAX_MESSAGE_LEN];
   uint8_t data_send[RF22_ROUTER_MAX_MESSAGE_LEN];
   memset(data_read, '\0', RF22_ROUTER_MAX_MESSAGE_LEN);
   memset(data_send, '\0', RF22_ROUTER_MAX_MESSAGE_LEN);
-  //sprintf(data_read, "%.2f:%.2f:%d", temp, pres, acc); //<------
-  snprintf(data_read, RF22_ROUTER_MAX_MESSAGE_LEN, "%s:%s:%s", tempStr, presStr, accStr);
+  
+  //Send all data only every second
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
+    snprintf(data_read, RF22_ROUTER_MAX_MESSAGE_LEN, "%s:%s:%s:%s:%s:%s", latStr, lonStr, sigStr, tempStr, presStr, accStr);
+  } else {
+    snprintf(data_read, RF22_ROUTER_MAX_MESSAGE_LEN, "%s", accStr);
+  }
   Serial.println(data_read);
   data_read[RF22_ROUTER_MAX_MESSAGE_LEN - 1] = '\0';
   memcpy(data_send, data_read, RF22_ROUTER_MAX_MESSAGE_LEN);
@@ -107,11 +128,13 @@ void loop() {
   } else {
     counter=counter+1;
     uint8_t rssi = rf22.rssiRead();
-    float Pr=((float)rssi-230.0)/1.8;
-    /*Serial.print("RSSI= ");
+    Pr=((float)rssi-230.0)/1.8;
+    /*
+    Serial.print("RSSI= ");
     Serial.print(Pr);
     Serial.println(" dBm");
-    Serial.println("Message sent successfully");*/
+    Serial.println("Message sent successfully");
+    */
   }
 
   int final_time=millis();

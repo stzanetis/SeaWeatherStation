@@ -25,8 +25,8 @@ const PressWidget = () => {
     useEffect(() => {
         fetchPressure();
 
-        // Set up an interval to fetch weather data every minute
-        const intervalId = setInterval(fetchPressure, 60000);
+        // Set up an interval to fetch data 30s
+        const intervalId = setInterval(fetchPressure, 30000);
         
         // Clean up the interval when component unmounts
         return () => clearInterval(intervalId);

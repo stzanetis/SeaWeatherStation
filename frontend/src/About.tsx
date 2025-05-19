@@ -19,9 +19,9 @@ const About = () => {
                             navigate('/')
                         }, 300)
                     }}
-                    className="bg-foreground/60 
+                    className="bg-foreground/60 transition-transform active:scale-95
                     backdrop-blur-sm flex items-center text-text shadow-lg 
-                    border-l border-t border-white/60 font-sansation font-bold"
+                    border-l border-t border-white/60 font-sansation font-bold focus:outline-none"
                 >
                     <ArrowLeft className="mr-2" size={20} />
                     Back
