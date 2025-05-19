@@ -55,8 +55,8 @@ const WindWidget = () => {
     useEffect(() => {
         fetchWind();
 
-        // Set up an interval to fetch weather data every minute
-        const intervalId = setInterval(fetchWind, 60000);
+        // Set up an interval to fetch data every 3m
+        const intervalId = setInterval(fetchWind, 180000);
         
         // Clean up the interval when component unmounts
         return () => clearInterval(intervalId);

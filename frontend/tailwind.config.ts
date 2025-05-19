@@ -15,11 +15,16 @@ export default {
 			}
 		},
     extend: {
+      width: {
+        'screen-minus': 'calc(100vw - 17px)'
+      },
       fontFamily: {
-        sansation: ['Sansation', 'sans-serif'],
-        manrope: ['Manrope', 'sans-serif'],
-        'lisu-bosa': ['"Lisu Bosa"', 'serif'],
+        'sansation': ['Sansation', 'sans-serif'],
+        'lisu': ['"Lisu Bosa"', 'serif'],
+        'manrope': ['Manrope', 'sans-serif'],
         'bungee': ['"Bungee Shade"', 'cursive'],
+        'pirata': ['"Pirata One"', 'cursive'],
+        'exile': ['Exile', 'cursive'],
       },
       colors: {
         background: "#2775A7",

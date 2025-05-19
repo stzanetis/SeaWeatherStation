@@ -12,11 +12,11 @@ const ShoreWidget = () => {
             setInundation(currentInundation);
 
             if (currentInundation < 2) {
-                setInundationDescription('Low height');
+                setInundationDescription('Below average');
             } else if (currentInundation >= 2 && currentInundation <= 5) {
-                setInundationDescription('Normal height');
+                setInundationDescription('Average');
             } else {
-                setInundationDescription('Above average height');
+                setInundationDescription('Above average');
             }
 
         } catch (error) {
@@ -27,8 +27,8 @@ const ShoreWidget = () => {
     useEffect(() => {
         fetchPressure();
 
-        // Set up an interval to fetch weather data every 10s
-        const intervalId = setInterval(fetchPressure, 10000);
+        // Set up an interval to fetch data every 30s
+        const intervalId = setInterval(fetchPressure, 30000);
         
         // Clean up the interval when component unmounts
         return () => clearInterval(intervalId);

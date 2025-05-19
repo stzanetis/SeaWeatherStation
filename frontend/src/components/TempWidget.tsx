@@ -28,8 +28,8 @@ const TempWidget = () => {
     useEffect(() => {
         fetchTemperature();
 
-        // Set up an interval to fetch weather data every minute
-        const intervalId = setInterval(fetchTemperature, 60000);
+        // Set up an interval to fetch data every 30s
+        const intervalId = setInterval(fetchTemperature, 30000);
         
         // Clean up the interval when component unmounts
         return () => clearInterval(intervalId);

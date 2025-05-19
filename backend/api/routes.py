@@ -17,8 +17,8 @@ def get_status():
     return jsonify({
         'online': True,
         'battery': 85,
-        'lat': round(data.get('lat', 0)),
-        'lon': round(data.get('lon', 0)),
+        'lat': data.get('lat', 0),
+        'lon': data.get('lon', 0),
         'signal_strength': round(data.get('signal', -999))
     })
 

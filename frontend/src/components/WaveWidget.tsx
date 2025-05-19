@@ -26,8 +26,8 @@ const WaveWidget = () => {
     useEffect(() => {
         fetchPressure();
 
-        // Set up an interval to fetch weather data every 5s
-        const intervalId = setInterval(fetchPressure, 5000);
+        // Set up an interval to fetch data every second
+        const intervalId = setInterval(fetchPressure, 1000);
         
         // Clean up the interval when component unmounts
         return () => clearInterval(intervalId);
