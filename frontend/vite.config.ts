@@ -8,12 +8,11 @@ export default defineConfig({
     host: "::",
     port: 8080,
   },
-  plugins: [
-    react()
-  ].filter(Boolean),
+  plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  base: '/SeaWeatherStation/',
 })

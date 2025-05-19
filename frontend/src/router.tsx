@@ -2,7 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import App from './App';
 import About from './About';
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
   {
     path: '/',
     element: <App />
@@ -11,6 +11,8 @@ const router = createBrowserRouter([
     path: '/about',
     element: <About />
   }
-]);
+], {
+  basename: '/SeaWeatherStation'
+});
 
 export default router;
