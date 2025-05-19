@@ -1,4 +1,3 @@
-export const API_BASE_URL = 'http://149.107.52.8:5000/';
 let API_BASE_URL = 'http://192.168.1.3:5000/';
 export const getBaseURL = () => API_BASE_URL;
 
